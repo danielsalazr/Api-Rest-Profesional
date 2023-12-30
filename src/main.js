@@ -47,13 +47,15 @@ function createMovies(
   movies.forEach(movie => {
     const movieContainer = document.createElement('div');
     movieContainer.classList.add('movie-container');
-    movieContainer.addEventListener('click', () => {
-      location.hash = '#movie=' + movie.id;
-    });
+    
 
     const movieImg = document.createElement('img');
     movieImg.classList.add('movie-img');
     movieImg.setAttribute('alt', movie.title);
+    movieImg.addEventListener('click', () => {
+      location.hash = '#movie=' + movie.id;
+    });
+
     
     movieImg.setAttribute(
       lazyLoad ? 'data-img' : 'src',
@@ -63,7 +65,15 @@ function createMovies(
       movieImg.setAttribute('src', 'https://img.freepik.com/vector-gratis/ups-error-404-ilustracion-concepto-robot-roto_114360-5529.jpg?w=900&t=st=1703890651~exp=1703891251~hmac=16d612a84e3a96529755ecc3a98558b1776daeed22e03eb263962c5c17f23d2d');
     });
 
-    
+    const movieBtn = document.createElement('button');
+    movieBtn.classList.add('movie-btn');
+    // movieBtn.innerText = 'like'
+    movieBtn.addEventListener('click', ()=>{
+      movieBtn.classList.toggle('movie-btn--liked')
+    })
+
+
+
 
     if(lazyLoad){
       lazyLoader.observe(movieImg)
@@ -71,7 +81,9 @@ function createMovies(
     
 
     movieContainer.appendChild(movieImg);
+    movieContainer.appendChild(movieBtn)
     container.appendChild(movieContainer);
+
   });
 }
 
