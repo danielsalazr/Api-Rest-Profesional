@@ -135,6 +135,7 @@ footer {
 
 .movie-img {
   border-radius: 8px;
+  min-height: 175px;
 }
 
 .categoriesPreview-list,
@@ -359,6 +360,7 @@ footer {
 
 .genericList-container .movie-img {
   width: 100%;
+  min-height: 175px;
 }
 
 /* Movie Detail */
@@ -434,6 +436,7 @@ footer {
   height: 187.5px;
   min-height: 187.5px;
   max-height: 187.5px;
+  /* min-height: 175px; */
 }
 
 /* Footer */
