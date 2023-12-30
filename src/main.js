@@ -19,7 +19,7 @@ const api = axios.create({
 const lazyLoader = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
 
-      console.log({entry})
+      // console.log({entry})
 
         if (entry.isIntersecting){
           const url = entry.target.getAttribute('data-img')
@@ -101,7 +101,7 @@ function createCategories(categories, container) {
 async function getTrendingMoviesPreview() {
   const { data } = await api('trending/movie/day');
   const movies = data.results;
-  console.log(movies)
+  // console.log(movies)
 
   createMovies(movies, trendingMoviesPreviewList, {lazyLoad: true,});
 }
@@ -120,8 +120,48 @@ async function getMoviesByCategory(id) {
     },
   });
   const movies = data.results;
+  maxPage = data.total_pages;
+  console.log(maxPage)
 
   createMovies(movies, genericSection, {lazyLoad: true,});
+}
+
+function getPaginatedMoviesByCategory(id){
+
+  // console.log("se ejecuto el event listener")
+
+  return async function () {
+
+    const { scrollTop, scrollHeight, clientHeight} = document.documentElement;
+    const scrollIsBottom = scrollTop + clientHeight >= scrollHeight - 15;
+
+    const pageIsMax = page >= maxPage;
+
+    if (!scrollIsBottom || pageIsMax){
+      // console.log("no se cargara pagina ")
+      return
+      
+    }
+    
+    page++;
+    const { data } = await api('discover/movie', {
+      params: {
+        with_genres: id,
+        page,
+      },
+    })
+    const movies = data.results;
+    console.log(data)
+
+    createMovies(
+      movies,
+      genericSection,
+      {
+        lazyLoad: true,
+        clean: false
+      }
+    );
+  }
 }
 
 async function getMoviesBySearch(query) {
@@ -131,30 +171,87 @@ async function getMoviesBySearch(query) {
     },
   });
   const movies = data.results;
+  maxPage = data.total_pages;
+  console.log(maxPage)
 
   createMovies(movies, genericSection, {lazyLoad: true,});
+  
+}
+
+// para que funcione esta funcion externa no debe ser asincronra
+function getPaginatedMoviesBySearch(query){
+
+  // console.log("se ejecuto el event listener")
+
+  return async function () {
+
+    const { scrollTop, scrollHeight, clientHeight} = document.documentElement;
+    const scrollIsBottom = scrollTop + clientHeight >= scrollHeight - 15;
+
+    const pageIsMax = page >= maxPage;
+
+    if (!scrollIsBottom || pageIsMax){
+      // console.log("no se cargara pagina ")
+      return
+      
+    }
+    
+    page++;
+    const { data } = await api('search/movie', {
+      params: {
+        query,
+        page,
+      },
+    })
+    const movies = data.results;
+    console.log(data)
+
+    createMovies(
+      movies,
+      genericSection,
+      {
+        lazyLoad: true,
+        clean: false
+      }
+    );
+  }
 }
 
 async function getTrendingMovies() {
   const { data } = await api('trending/movie/day');
   const movies = data.results;
 
-  console.log(movies)
+  maxPage = data.total_pages;
+
+  // console.log(movies)
+  console.log(data.total_pages)
 
   createMovies(movies, genericSection, {lazyLoad: true,});
 
-  const btnLoadMore = document.createElement('button');
-  btnLoadMore.innerText = 'Cargar mas'
-  btnLoadMore.addEventListener('click', getPaginatedTrendingMovies)
-  btnLoadMore.setAttribute('id', "btnCarga")
-  genericSection.appendChild(btnLoadMore)
+
+  //Logica para crear boton vargar mas
+
+  // const btnLoadMore = document.createElement('button');
+  // btnLoadMore.innerText = 'Cargar mas'
+  // btnLoadMore.addEventListener('click', getPaginatedTrendingMovies)
+  // btnLoadMore.setAttribute('id', "btnCarga")
+  // genericSection.appendChild(btnLoadMore)
 
 
 }
 
-let page = 1;
 
 async function getPaginatedTrendingMovies(){
+
+  const { scrollTop, scrollHeight, clientHeight} = document.documentElement;
+  const scrollIsBottom = scrollTop + clientHeight >= scrollHeight - 15;
+
+  const pageIsMax = page >= maxPage;
+
+  if (!scrollIsBottom || pageIsMax){
+    return
+  }
+  
   page++;
   const { data } = await api('trending/movie/day', {
     params: {
@@ -162,6 +259,8 @@ async function getPaginatedTrendingMovies(){
     },
   })
   const movies = data.results;
+  // console.log(data)
+
   createMovies(
     movies,
     genericSection,
@@ -171,15 +270,16 @@ async function getPaginatedTrendingMovies(){
     }
   );
 
-  
-  const oldBtnCarga = document.querySelector('#btnCarga')
-  genericSection.removeChild(oldBtnCarga)
+  // Logica para boton cargar mas
 
-  const btnLoadMore = document.createElement('button');
-  btnLoadMore.innerText = 'Cargar mas'
-  btnLoadMore.addEventListener('click', getPaginatedTrendingMovies)
-  btnLoadMore.setAttribute('id', "btnCarga")
-  genericSection.appendChild(btnLoadMore)
+  // const oldBtnCarga = document.querySelector('#btnCarga')
+  // genericSection.removeChild(oldBtnCarga)
+
+  // const btnLoadMore = document.createElement('button');
+  // btnLoadMore.innerText = 'Cargar mas'
+  // btnLoadMore.addEventListener('click', getPaginatedTrendingMovies)
+  // btnLoadMore.setAttribute('id', "btnCarga")
+  // genericSection.appendChild(btnLoadMore)
 }
 
 async function getMovieById(id) {
