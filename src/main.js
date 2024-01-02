@@ -1,3 +1,5 @@
+// Data
+
 const api = axios.create({
   baseURL: 'https://api.themoviedb.org/3/',
   headers: {
@@ -5,8 +7,41 @@ const api = axios.create({
   },
   params: {
     'api_key': API_KEY,
+    'language': 'es',
   },
 });
+
+
+// Valida las peliculas en localStorage parseandolas  en Json
+function likedMoviesList(){
+
+  const item = JSON.parse(localStorage.getItem('liked_movies'));
+  let movies;
+
+  if (item){
+    movies = item;
+  } else {
+    movies = {}
+  }
+  return movies;
+}
+
+// Zgrega las peliculas con like a local storage
+function likeMovie(movie){
+
+  const likedMovies = likedMoviesList();
+  // console.log()
+  console.log(likedMovies)
+  if (likedMovies[movie.id]){
+    // console.log("la pelicula ya estaba en local storage, debemos eliminarla")
+    likedMovies[movie.id] = undefined;
+  } else {
+    // console.log("La palicula no estaba en local storage, debemos agragarla")
+    likedMovies[movie.id] = movie;
+  }
+
+  localStorage.setItem('liked_movies',JSON.stringify(likedMovies));
+}
 
 
 // Utils
@@ -68,8 +103,13 @@ function createMovies(
     const movieBtn = document.createElement('button');
     movieBtn.classList.add('movie-btn');
     // movieBtn.innerText = 'like'
+
+    likedMoviesList()[movie.id] &&  movieBtn.classList.add('movie-btn--liked')
     movieBtn.addEventListener('click', ()=>{
       movieBtn.classList.toggle('movie-btn--liked')
+
+      likeMovie(movie);
+      getLikedMovies()
     })
 
 
@@ -86,6 +126,7 @@ function createMovies(
 
   });
 }
+
 
 function createCategories(categories, container) {
   container.innerHTML = "";
@@ -322,4 +363,17 @@ async function getRelatedMoviesId(id) {
   const relatedMovies = data.results;
 
   createMovies(relatedMovies, relatedMoviesContainer, {lazyLoad: true,});
+}
+
+function getLikedMovies(){
+  const likedMovies = likedMoviesList()
+
+  // nos ayuda a convertir objetos en arrays
+  likedMoviesListArticle.innerHTML =''
+  const moviesArray = Object.values(likedMovies)
+
+  createMovies( moviesArray, likedMoviesListArticle, {lazyLoad : true, clean : true })
+
+  console.log(likedMovies)
+
 }
